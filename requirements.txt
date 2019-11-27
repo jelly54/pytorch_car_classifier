@@ -1,0 +1,7 @@
+torch==1.3.1+cu92
+torchvision==0.4.2+cu92
+torchnet==0.0.4
+numpy==1.17.4
+pandas==0.25.3
+Pillow==6.2.1
+visdom==0.1.8.9

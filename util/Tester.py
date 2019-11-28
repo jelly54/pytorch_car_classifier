@@ -17,9 +17,9 @@ class TestParams(object):
     gpus = []  # default to use CPU mode
 
     # loading existing checkpoint
-    ckpt = './models/ckpt_epoch_800_res101.pth'  # path to the ckpt file
+    ckpt = './models/ckpt_epoch_50.pth'  # path to the ckpt file
 
-    testdata_dir = './testimg/'
+    testdata_dir = './record/testimg/'
 
 
 class Tester(object):
@@ -70,4 +70,5 @@ class Tester(object):
 
     def _load_ckpt(self, ckpt):
         self.model.load_state_dict(torch.load(ckpt))
-
+        # 使用cpu预测
+        # self.model.load_state_dict(torch.load(ckpt, map_location=torch.device('cpu')), False)

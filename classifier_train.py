@@ -15,7 +15,7 @@ if __name__ == '__main__':
     train_csv = './record/train.txt'
     val_csv = './record/val.txt'
     model_path = './models/'
-    batch_size = 40  # batch_size per GPU, if use GPU mode; resnet34: batch_size=120
+    batch_size = 60  # batch_size per GPU, if use GPU mode; resnet34: batch_size=120
     num_workers = 2
 
     init_lr = 0.01
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     params = Trainer.TrainParams()
     params.max_epoch = 500
     params.criterion = nn.CrossEntropyLoss()
-    params.gpus = [0]  # set 'params.gpus=[]' to use CPU mode
+    params.gpus = [0, 1]  # set 'params.gpus=[]' to use CPU mode
     params.save_dir = model_path
     params.ckpt = None
     params.save_freq_epoch = 50
@@ -38,7 +38,7 @@ if __name__ == '__main__':
         transforms.Resize(224),  # 缩放图片，保持长宽比不变，最短边的长为224像素,
         transforms.CenterCrop(224),  # 从中间切出 224*224的图片
         transforms.ToTensor(),  # 将图片转换为Tensor,归一化至[0,1]
-        transforms.Normalize(mean=[.5, .5, .5], std=[.5, .5, .5])  # 标准化至[-1,1]
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # 标准化至[-1,1]
     ])
 
     # load data
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     # models
     # model = resnet34(pretrained=False, modelpath=model_path, num_classes=1000)  # batch_size=120, 1GPU Memory < 7000M
     # model.fc = nn.Linear(512, 6)
-    model = resnet101(pretrained=False, modelpath=model_path, num_classes=1000)  # batch_size=60, 1GPU Memory > 9000M
+    model = resnet101(pretrained=True, modelpath=model_path, num_classes=1000)  # batch_size=60, 1GPU Memory > 9000M
     model.fc = nn.Linear(512 * 4, 2951)
 
     # optimizer

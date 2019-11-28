@@ -107,3 +107,4 @@ venv.bak/
 .idea
 /data/images
 /record
+/models

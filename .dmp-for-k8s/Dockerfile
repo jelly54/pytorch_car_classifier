@@ -1,4 +1,4 @@
-FROM centos:7.6
+FROM centos:7.6.1810
 
 MAINTAINER jelly_54@163.com
 USER root
@@ -21,9 +21,8 @@ RUN yum update -y \
     && yum install -y openldap-devel
 
 # 安装上传服务相关
-RUN yum install lrzsz -y \
-    && yum install zip -y \
-    && yum install unzip -y
+RUN yum install lrzsz zip unzip -y \
+    && yum install nginx -y
 
 # pipenv
 RUN pip3.6 install pipenv && ln -s /usr/bin/pip3.6 /bin/pip && rm /usr/bin/python && ln -s /usr/bin/python3.6 /usr/bin/python
@@ -34,8 +33,7 @@ ADD start.sh /usr/bin/start.sh
 # 代码路径
 ADD code /home/work/code/pytorch_car_classifier
 
-RUN yum install -y nginx && pip install -r /home/work/code/pytorch_car_classifier/requirements.txt
-
+RUN pip install -r /home/work/code/pytorch_car_classifier/requirements.txt
 
 # nginx
 RUN mkdir -p /home/work/var/pytorch_car_classifier/nginx /home/work/pytorch_car_classifier/static /home/work/logs/pytorch_car_classifier

@@ -5,8 +5,7 @@ USER root
 WORKDIR /
 
 # 时区设置
-RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-  && echo 'Asia/Shanghai' >/etc/timezone \
+RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  && echo 'Asia/Shanghai' >/etc/timezone 
 
 # 设置系统语言为中文
 RUN yum -y install net-tools wget lrzsz kde-l10n-Chinese glibc-common
@@ -27,11 +26,7 @@ RUN yum install lrzsz -y \
     && yum install unzip -y
 
 # pipenv
-RUN pip3.6 install pipenv && 
-    ln -s /usr/bin/pip3.6 /bin/pip && 
-    rm /usr/bin/python && 
-    ln -s /usr/bin/python3.6 /usr/bin/python
-
+RUN pip3.6 install pipenv && ln -s /usr/bin/pip3.6 /bin/pip && rm /usr/bin/python && ln -s /usr/bin/python3.6 /usr/bin/python
 
 # 启动脚本路径
 ADD start.sh /usr/bin/start.sh

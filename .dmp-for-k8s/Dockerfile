@@ -10,7 +10,13 @@ ADD start.sh /usr/bin/start.sh
 # 代码路径
 ADD code /home/work/code/pytorch_car_classifier
 
-RUN yum install -y nginx && pip install -r /home/work/code/pytorch_car_classifier/requirements.txt
+## 添加个 yum repo，使用阿里云 repo 来加速
+RUN mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup && curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+
+RUN yum install -y epel-release && yum install -y rh-python36 rh-python36-scldevel nginx 
+
+ENV PATH="/opt/rh/rh-python36/root/usr/bin:$PATH"
+RUN pip install -r /home/work/code/pytorch_car_classifier/requirements.txt
 
 # nginx
 RUN mkdir -p /home/work/var/pytorch_car_classifier/nginx /home/work/pytorch_car_classifier/static /home/work/logs/pytorch_car_classifier

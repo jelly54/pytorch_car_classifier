@@ -30,7 +30,7 @@ if __name__ == '__main__':
     params.criterion = nn.CrossEntropyLoss()
     params.gpus = [0, 1]  # set 'params.gpus=[]' to use CPU mode
     params.save_dir = model_path
-    params.ckpt = None
+    params.ckpt = None  # 加载训练好的模型
     params.save_freq_epoch = 50
 
     # 图片转换 原图：(135, 202, 3)

@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
+import datetime
 import os
-import numpy as np
 
+import numpy as np
 import torch as t
 import torch.nn as nn
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.autograd import Variable
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchnet import meter
 
 from .log import logger
@@ -27,21 +28,20 @@ class TrainParams(object):
     # optimizer and criterion and learning rate scheduler
     optimizer = None
     criterion = None
-    lr_scheduler = None         # should be an instance of ReduceLROnPlateau or _LRScheduler
+    lr_scheduler = None  # should be an instance of ReduceLROnPlateau or _LRScheduler
 
     # params based on your local env
     gpus = []  # default to use CPU mode
-    save_dir = './models/'            # default `save_dir`
+    save_dir = './models/'  # default `save_dir`
 
     # loading existing checkpoint
-    ckpt = None                 # path to the ckpt file
+    ckpt = None  # path to the ckpt file
 
     # saving checkpoints
-    save_freq_epoch = 1         # save one ckpt per `save_freq_epoch` epochs
+    save_freq_epoch = 1  # save one ckpt per `save_freq_epoch` epochs
 
 
 class Trainer(object):
-
     TrainParams = TrainParams
 
     def __init__(self, model, train_params, train_data, val_data=None):
@@ -104,7 +104,8 @@ class Trainer(object):
 
             # save model
             if (self.last_epoch % self.params.save_freq_epoch == 0) or (self.last_epoch == self.params.max_epoch - 1):
-                save_name = self.params.save_dir + 'ckpt_epoch_{}.pth'.format(self.last_epoch)
+                now_time = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+                save_name = self.params.save_dir + '{}_ckpt_epoch_{}.pth'.format(str(now_time), self.last_epoch)
                 t.save(self.model.state_dict(), save_name)
 
             val_cm, val_accuracy = self._val_one_epoch()
@@ -129,15 +130,12 @@ class Trainer(object):
 
     def _train_one_epoch(self):
         for step, (data, label) in enumerate(self.train_data):
+            device = t.device("cuda" if self.params.gpus > 0 else "cpu")
             # train model
-            inputs = Variable(data)
-            target = Variable(label)
-            if len(self.params.gpus) > 0:
-                inputs = inputs.cuda()
-                target = target.cuda()
+            inputs, target = data.to(device), label.to(device)
 
             # forward
-            score = self.model(inputs) 
+            score = self.model(inputs)
             loss = self.criterion(score, target)
 
             # backward
@@ -153,16 +151,12 @@ class Trainer(object):
         self.model.eval()
         confusion_matrix = meter.ConfusionMeter(2951)
         logger.info('Val on validation set...')
+        device = t.device("cuda" if self.params.gpus > 0 else "cpu")
 
         for step, (data, label) in enumerate(self.val_data):
-
             # val model
             with t.no_grad():
-                inputs = Variable(data)
-                target = Variable(label.type(t.LongTensor))
-            if len(self.params.gpus) > 0:
-                inputs = inputs.cuda()
-                target = target.cuda()
+                inputs, target = data.to(device), label.type(t.LongTensor).to(device)
 
             score = self.model(inputs)
             confusion_matrix.add(score.data.squeeze(), label.type(t.LongTensor))

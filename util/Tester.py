@@ -14,7 +14,7 @@ from .log import logger
 
 class TestParams(object):
     # params based on your local env
-    gpus = []  # default to use CPU mode
+    device = 'cpu'
 
     # loading existing checkpoint
     ckpt = './models/ckpt_epoch_50.pth'  # path to the ckpt file
@@ -37,11 +37,13 @@ class Tester(object):
             logger.info('Load ckpt from {}'.format(ckpt))
 
         # set CUDA_VISIBLE_DEVICES, 1 GPU is enough
-        if len(self.params.gpus) > 0:
-            gpu_test = str(self.params.gpus[0])
-            os.environ['CUDA_VISIBLE_DEVICES'] = gpu_test
-            logger.info('Set CUDA_VISIBLE_DEVICES to {}...'.format(gpu_test))
-            self.model = self.model.cuda()
+        self.params.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        if torch.cuda.device_count() > 1:
+            self.model = torch.nn.DataParallel(self.model)
+
+        logger.info('Use {} GPUs'.format(torch.cuda.device_count()))
+        self.model.to(self.params.device)
 
         self.model.eval()
 
@@ -51,7 +53,6 @@ class Tester(object):
 
         for img_name in img_list:
             print('Processing image: ' + img_name)
-            device = torch.device("cuda" if self.params.gpus > 0 else "cpu")
 
             # img = Image.open(os.path.join(self.params.testdata_dir, img_name))
             img_name = os.path.join(self.params.testdata_dir, img_name)
@@ -59,7 +60,7 @@ class Tester(object):
 
             img = tv_F.to_tensor(tv_F.resize(img, (224, 224)))
             img = tv_F.normalize(img, [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-            img_input = torch.unsqueeze(img, 0).to(device)
+            img_input = torch.unsqueeze(img, 0).to(self.params.device)
 
             output = self.model(img_input)
             score = F.softmax(output, dim=1)

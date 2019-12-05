@@ -7,7 +7,6 @@ import os
 import numpy as np
 import torch as t
 import torch.nn as nn
-from torch.autograd import Variable
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchnet import meter
 
@@ -31,7 +30,7 @@ class TrainParams(object):
     lr_scheduler = None  # should be an instance of ReduceLROnPlateau or _LRScheduler
 
     # params based on your local env
-    gpus = []  # default to use CPU mode
+    device = 'cpu'
     save_dir = './models/'  # default `save_dir`
 
     # loading existing checkpoint
@@ -79,14 +78,13 @@ class Trainer(object):
         self.confusion_matrix = meter.ConfusionMeter(2951)
 
         # set CUDA_VISIBLE_DEVICES
-        if len(self.params.gpus) > 0:
-            gpus = ','.join([str(x) for x in self.params.gpus])
-            os.environ['CUDA_VISIBLE_DEVICES'] = gpus
-            self.params.gpus = tuple(range(len(self.params.gpus)))
-            logger.info('Set CUDA_VISIBLE_DEVICES to {}...'.format(gpus))
-            self.model = nn.DataParallel(self.model, device_ids=self.params.gpus)
-            self.model = self.model.cuda()
+        self.params.device = t.device("cuda" if t.cuda.is_available() else "cpu")
+        if t.cuda.device_count() > 1:
+            self.model = nn.DataParallel(self.model)
 
+        logger.info('Train device {}'.format(self.params.device))
+        logger.info('Use {} GPUs'.format(t.cuda.device_count()))
+        self.model.to(self.params.device)
         self.model.train()
 
     def train(self):
@@ -130,9 +128,8 @@ class Trainer(object):
 
     def _train_one_epoch(self):
         for step, (data, label) in enumerate(self.train_data):
-            device = t.device("cuda" if self.params.gpus > 0 else "cpu")
             # train model
-            inputs, target = data.to(device), label.to(device)
+            inputs, target = data.to(self.params.device), label.to(self.params.device)
 
             # forward
             score = self.model(inputs)
@@ -151,12 +148,11 @@ class Trainer(object):
         self.model.eval()
         confusion_matrix = meter.ConfusionMeter(2951)
         logger.info('Val on validation set...')
-        device = t.device("cuda" if self.params.gpus > 0 else "cpu")
 
         for step, (data, label) in enumerate(self.val_data):
             # val model
             with t.no_grad():
-                inputs, target = data.to(device), label.type(t.LongTensor).to(device)
+                inputs, target = data.to(self.params.device), label.type(t.LongTensor).to(self.params.device)
 
             score = self.model(inputs)
             confusion_matrix.add(score.data.squeeze(), label.type(t.LongTensor))

@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 
 from dataset import CarDataset
-from network import resnet101
+from network import resnet34
 from util import Trainer
 
 if __name__ == '__main__':
@@ -15,8 +15,8 @@ if __name__ == '__main__':
     train_csv = './record/train.txt'
     val_csv = './record/val.txt'
     model_path = './models/'
-    batch_size = 60  # batch_size per GPU, if use GPU mode; resnet34: batch_size=120
-    num_workers = 2
+    batch_size = 128  # batch_size per GPU, if use GPU mode;
+    num_workers = 3
 
     init_lr = 0.01
     lr_decay = 0.8
@@ -28,7 +28,6 @@ if __name__ == '__main__':
     params = Trainer.TrainParams()
     params.max_epoch = 500
     params.criterion = nn.CrossEntropyLoss()
-    params.gpus = [0, 1]  # set 'params.gpus=[]' to use CPU mode
     params.save_dir = model_path
     params.ckpt = None  # 加载训练好的模型
     params.save_freq_epoch = 50
@@ -46,7 +45,7 @@ if __name__ == '__main__':
     train_data = CarDataset(train_csv, data_root, transform=transform)
     val_data = CarDataset(val_csv, data_root, transform=transform)
 
-    batch_size = batch_size if len(params.gpus) == 0 else batch_size * len(params.gpus)
+    batch_size = batch_size if torch.cuda.device_count() == 0 else batch_size * torch.cuda.device_count()
 
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     print('train dataset len: {}'.format(len(train_dataloader.dataset)))
@@ -55,10 +54,10 @@ if __name__ == '__main__':
     print('val dataset len: {}'.format(len(val_dataloader.dataset)))
 
     # models
-    # model = resnet34(pretrained=False, modelpath=model_path, num_classes=1000)  # batch_size=120, 1GPU Memory < 7000M
-    # model.fc = nn.Linear(512, 6)
-    model = resnet101(pretrained=True, modelpath=model_path, num_classes=1000)  # batch_size=60, 1GPU Memory > 9000M
-    model.fc = nn.Linear(512 * 4, 2951)
+    model = resnet34(pretrained=False, modelpath=model_path, num_classes=1000)  # batch_size=120, 1GPU Memory < 7000M
+    model.fc = nn.Linear(512, 2951)
+    # model = resnet101(pretrained=True, modelpath=model_path, num_classes=1000)  # batch_size=60, 1GPU Memory > 9000M
+    # model.fc = nn.Linear(512 * 4, 2951)
 
     # optimizer
     trainable_vars = [param for param in model.parameters() if param.requires_grad]
@@ -67,6 +66,9 @@ if __name__ == '__main__':
                                        momentum=momentum,
                                        weight_decay=weight_decay,
                                        nesterov=nesterov)
+
+    # optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+    # optimizer = optim.Adam([var1, var2], lr=0.0001)
 
     # Train
     params.lr_scheduler = ReduceLROnPlateau(params.optimizer, 'min', factor=lr_decay, patience=10, cooldown=10,

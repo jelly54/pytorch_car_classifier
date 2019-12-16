@@ -26,7 +26,7 @@ class TrainParams(object):
 
     # optimizer and criterion and learning rate scheduler
     optimizer = None
-    criterion = None
+    criterion = None 
     lr_scheduler = None  # should be an instance of ReduceLROnPlateau or _LRScheduler
 
     # params based on your local env

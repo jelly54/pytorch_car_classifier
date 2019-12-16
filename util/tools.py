@@ -73,6 +73,10 @@ def generate_train_val_test_txt(origin_file, target_file, labels):
 
 def main():
     label_dict = get_label_dict()
+    generate_train_val_test_txt(r"E:\data\CompCars\data\train_test_split\classification\train.txt",
+                                "../data/train.txt", label_dict)
+    generate_train_val_test_txt(r"E:\data\CompCars\data\train_test_split\classification\test.txt",
+                                "../data/test.txt", label_dict)
     generate_train_val_test_txt(r"E:\data\CompCars\data\train_test_split\verification\verification_train.txt",
                                 "../data/val.txt", label_dict)
 

@@ -5,18 +5,18 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-from dataset import CarDataset
+from data import CarDataset
 from network import resnet34
 from util import Trainer
 
 if __name__ == '__main__':
     # Hyper-params
-    data_root = './record/images/'
-    train_csv = './record/train.txt'
-    val_csv = './record/val.txt'
+    data_root = './data/images/'
+    train_csv = './data/train.txt'
+    val_csv = './data/val.txt'
     model_path = './models/'
     batch_size = 128  # batch_size per GPU, if use GPU mode;
-    num_workers = 3
+    num_workers = 2
 
     init_lr = 0.01
     lr_decay = 0.8
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     params.ckpt = None  # 加载训练好的模型
     params.save_freq_epoch = 50
 
-    # 图片转换 原图：(135, 202, 3)
+    # 图片转换
     transform = transforms.Compose([
         transforms.Resize(224),  # 缩放图片，保持长宽比不变，最短边的长为224像素,
         transforms.CenterCrop(224),  # 从中间切出 224*224的图片

@@ -54,7 +54,6 @@ class Tester(object):
         for img_name in img_list:
             print('Processing image: ' + img_name)
 
-            # img = Image.open(os.path.join(self.params.testdata_dir, img_name))
             img_name = os.path.join(self.params.testdata_dir, img_name)
             img = Image.open(img_name)
 

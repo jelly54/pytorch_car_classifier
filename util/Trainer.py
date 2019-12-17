@@ -24,6 +24,9 @@ class TrainParams(object):
     # required params
     max_epoch = 30
 
+    # Number of categories
+    categories = 2
+
     # optimizer and criterion and learning rate scheduler
     optimizer = None
     criterion = None 
@@ -75,7 +78,7 @@ class Trainer(object):
 
         # meters
         self.loss_meter = meter.AverageValueMeter()
-        self.confusion_matrix = meter.ConfusionMeter(2951)
+        self.confusion_matrix = meter.ConfusionMeter(self.params.categories)
 
         # set CUDA_VISIBLE_DEVICES
         self.params.device = t.device("cuda" if t.cuda.is_available() else "cpu")
@@ -146,7 +149,7 @@ class Trainer(object):
 
     def _val_one_epoch(self):
         self.model.eval()
-        confusion_matrix = meter.ConfusionMeter(2951)
+        confusion_matrix = meter.ConfusionMeter(self.params.categories)
         logger.info('Val on validation set...')
 
         for step, (data, label) in enumerate(self.val_data):

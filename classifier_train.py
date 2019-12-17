@@ -31,6 +31,7 @@ if __name__ == '__main__':
     params.save_dir = model_path
     params.ckpt = None  # 加载训练好的模型
     params.save_freq_epoch = 50
+    params.categories = 13  # 分类数量
 
     # 图片转换
     transform = transforms.Compose([
@@ -54,8 +55,8 @@ if __name__ == '__main__':
     print('val dataset len: {}'.format(len(val_dataloader.dataset)))
 
     # models
-    model = resnet34(pretrained=False, modelpath=model_path, num_classes=1000)  # batch_size=120, 1GPU Memory < 7000M
-    model.fc = nn.Linear(512, 2951)
+    model = resnet34(pretrained=True, modelpath=model_path, num_classes=1000)  # batch_size=120, 1GPU Memory < 7000M
+    model.fc = nn.Linear(512, params.categories)
     # model = resnet101(pretrained=True, modelpath=model_path, num_classes=1000)  # batch_size=60, 1GPU Memory > 9000M
     # model.fc = nn.Linear(512 * 4, 2951)
 
@@ -66,9 +67,6 @@ if __name__ == '__main__':
                                        momentum=momentum,
                                        weight_decay=weight_decay,
                                        nesterov=nesterov)
-
-    # optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
-    # optimizer = optim.Adam([var1, var2], lr=0.0001)
 
     # Train
     params.lr_scheduler = ReduceLROnPlateau(params.optimizer, 'min', factor=lr_decay, patience=10, cooldown=10,

@@ -11,7 +11,7 @@ from util import Trainer
 
 if __name__ == '__main__':
     # Hyper-params
-    data_root = './data/images/'
+    data_root = './data/'
     train_csv = './data/train.txt'
     val_csv = './data/val.txt'
     model_path = './models/'

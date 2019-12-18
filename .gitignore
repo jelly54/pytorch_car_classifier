@@ -105,6 +105,7 @@ venv.bak/
 # own ignore
 *.pyc
 .idea
+
 /data/images
 /data/*.txt
 /models

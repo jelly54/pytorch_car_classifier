@@ -65,7 +65,7 @@ def generate_train_val_test_txt(origin_file, target_file, labels):
         path = data[0]
         model_id = get_model_id(path)
         label = labels[str(model_id)]
-        _target_file.writelines(",".join(["./images/" + path, label, "\n"]))
+        _target_file.writelines(",".join(["./images/" + path, label + "\n"]))
 
     _origin_file.close()
     _target_file.close()

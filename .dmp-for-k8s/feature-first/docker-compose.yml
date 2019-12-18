@@ -6,6 +6,6 @@ services:
     ports:
       - 8998:8097
     volumes:
-      - /data01/guodong/code/data/images:/home/user/code/pytorch_car_classifier/data/images
+      - /data01/guodong/code/data:/home/user/code/pytorch_car_classifier/data
     restart: always
 

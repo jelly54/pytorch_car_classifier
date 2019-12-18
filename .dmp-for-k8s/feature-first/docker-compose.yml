@@ -1,6 +1,7 @@
 version: '2'
 services:
   pytorch_car_classifier:
+    shm_size: 2G
     image: jelly54.github.io/mirror/pytorch_car_classifier:VERSION
     command: sh /usr/bin/start.sh
     ports:

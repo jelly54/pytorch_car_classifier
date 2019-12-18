@@ -4,11 +4,8 @@ services:
     image: jelly54.github.io/mirror/pytorch_car_classifier:VERSION
     command: sh /usr/bin/start.sh
     ports:
-      - 8998:80
+      - 8998:8097
     volumes:
-      - /data/work/prod/pytorch_car_classifier/record:/home/work/code/pytorch_car_classifier/record
-      - /data/work/prod/pytorch_car_classifier/logs:/home/work/logs/pytorch_car_classifier
-      - /data/work/prod/pytorch_car_classifier/tmp:/home/work/tmp/pytorch_car_classifier
-      - /data/work/prod/pytorch_car_classifier/nginx:/home/work/var/ai-en-pathology/nginx
+      - /data01/guodong/code/data/images:/home/user/code/pytorch_car_classifier/data/images
     restart: always
 

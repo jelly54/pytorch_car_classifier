@@ -10,5 +10,7 @@ ROOTDIR="$( cd $SCRIPTDIR/../.. && pwd )"
 
 YML_Path="${SCRIPTDIR}/docker-compose.yml"
 
+cp ${SCRIPTDIR}/sources.list ${ROOTDIR}/sources.list
+
 # 更改镜像version
 sed -i "s/VERSION/${VERSION}/g" ${YML_Path}

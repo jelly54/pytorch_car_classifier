@@ -15,8 +15,8 @@ if __name__ == '__main__':
     train_csv = './data/train.txt'
     val_csv = './data/val.txt'
     model_path = './models/'
-    batch_size = 128  # batch_size per GPU, if use GPU mode;
-    num_workers = 0
+    batch_size = 120  # batch_size per GPU, if use GPU mode;
+    num_workers = 3
 
     init_lr = 0.01
     lr_decay = 0.8

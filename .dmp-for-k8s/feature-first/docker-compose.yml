@@ -7,5 +7,6 @@ services:
       - 8998:8097
     volumes:
       - /data01/guodong/code/data:/home/user/code/pytorch_car_classifier/data
+      - /data01/guodong/code/models:/home/user/code/pytorch_car_classifier/models
     restart: always
 

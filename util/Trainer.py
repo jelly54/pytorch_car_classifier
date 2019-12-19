@@ -88,6 +88,10 @@ class Trainer(object):
         logger.info('Train device {}'.format(self.params.device))
         logger.info('Use {} GPUs'.format(t.cuda.device_count()))
         self.model.to(self.params.device)
+
+        # release empty cache
+        t.cuda.empty_cache()
+
         self.model.train()
 
     def train(self):
@@ -108,6 +112,9 @@ class Trainer(object):
                 now_time = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
                 save_name = self.params.save_dir + '{}_ckpt_epoch_{}.pth'.format(str(now_time), self.last_epoch)
                 t.save(self.model.state_dict(), save_name)
+
+            # release empty cache
+            t.cuda.empty_cache()
 
             val_cm, val_accuracy = self._val_one_epoch()
 

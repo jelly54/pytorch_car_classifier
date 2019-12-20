@@ -19,32 +19,11 @@ RUN apt-get update --fix-missing && \
  && rm -rf /var/lib/rpm/__db*
  
 # Install Miniconda
-RUN curl -so ~/miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh \
- && chmod +x ~/miniconda.sh \
- && ~/miniconda.sh -b -p ~/miniconda \
- && rm ~/miniconda.sh
-ENV PATH=/root/miniconda/bin:$PATH
+RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && wget --quiet https://repo.continuum.io/archive/Anaconda3-5.0.1-Linux-x86_64.sh -O ~/anaconda.sh && /bin/bash ~/anaconda.sh -b -p /opt/conda && rm ~/anaconda.sh
 ENV CONDA_AUTO_UPDATE_CONDA=false
+ENV PATH /opt/conda/bin:$PATH
 
-# Create a Python 3.6 environment
-RUN /root/miniconda/bin/conda create -y --name py36 python=3.6.9 \
- && /root/miniconda/bin/conda clean -ya
-ENV CONDA_DEFAULT_ENV=py36
-ENV CONDA_PREFIX=/root/miniconda/envs/$CONDA_DEFAULT_ENV
-ENV PATH=$CONDA_PREFIX/bin:$PATH
-RUN /root/miniconda/bin/conda install conda-build=3.18.9=py36_3 \
- && /root/miniconda/bin/conda clean -ya
-
-# CUDA 10.0-specific steps
-RUN conda install -y -c pytorch \
-    cudatoolkit=10.0 \
-    "pytorch=1.2.0=py3.6_cuda10.0.130_cudnn7.6.2_0" \
-    "torchvision=0.4.0=py36_cu100" \
- && conda clean -ya
-
-# Install Requests, a Python library for making HTTP requests
-RUN conda install -y requests=2.19.1 \
- && conda clean -ya
+RUN conda install pytorch torchvision -c pytorch -y
 
 # 启动脚本路径
 ADD start.sh /usr/bin/start.sh

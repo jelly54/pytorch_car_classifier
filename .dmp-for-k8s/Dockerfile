@@ -6,7 +6,7 @@ WORKDIR /
 
 ENV PYTHONIOENCODING=utf-8
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak
-ADD sources.list /etc/apt/sources.list
+ADD ./code/sources.list /etc/apt/sources.list
 
 # Install some basic utilities
 RUN apt-get update --fix-missing && \

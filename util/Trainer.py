@@ -29,7 +29,7 @@ class TrainParams(object):
 
     # optimizer and criterion and learning rate scheduler
     optimizer = None
-    criterion = None 
+    criterion = None
     lr_scheduler = None  # should be an instance of ReduceLROnPlateau or _LRScheduler
 
     # params based on your local env
@@ -141,14 +141,16 @@ class Trainer(object):
             # train model
             inputs, target = data.to(self.params.device), label.to(self.params.device)
 
-            # forward
+            # Forward propagation
             score = self.model(inputs)
             loss = self.criterion(score, target)
 
-            # backward
+            # The gradient value of the parameter is initialized to 0
             self.optimizer.zero_grad()
+            # Back propagation
             loss.backward()
-            self.optimizer.step(None)
+            # Update parameters
+            self.optimizer.step()
 
             # meters update
             self.loss_meter.add(loss.item())
@@ -159,17 +161,22 @@ class Trainer(object):
         confusion_matrix = meter.ConfusionMeter(self.params.categories)
         logger.info('Val on validation set...')
 
+        # val model
         for step, (data, label) in enumerate(self.val_data):
-            # val model
             with t.no_grad():
                 inputs, target = data.to(self.params.device), label.type(t.LongTensor).to(self.params.device)
 
             score = self.model(inputs)
-            confusion_matrix.add(score.data.squeeze(), label.type(t.LongTensor))
+            confusion_matrix.add(score.data.squeeze(), target.type(t.LongTensor))
 
         self.model.train()
         cm_value = confusion_matrix.value()
         accuracy = 100. * (cm_value[0][0] + cm_value[1][1]
                            + cm_value[2][2] + cm_value[3][3]
-                           + cm_value[4][4] + cm_value[5][5]) / (cm_value.sum())
+                           + cm_value[4][4] + cm_value[5][5]
+                           + cm_value[6][6] + cm_value[7][7]
+                           + cm_value[8][8] + cm_value[9][9]
+                           + cm_value[10][10] + cm_value[11][11]
+                           + cm_value[12][12] + cm_value[13][13]
+                           ) / (cm_value.sum())
         return confusion_matrix, accuracy

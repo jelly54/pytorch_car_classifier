@@ -33,7 +33,8 @@ class TrainParams(object):
     lr_scheduler = None  # should be an instance of ReduceLROnPlateau or _LRScheduler
 
     # params based on your local env
-    device = 'cpu'
+    device = t.device('cpu')
+    gpus = []
     save_dir = './models/'  # default `save_dir`
 
     # loading existing checkpoint
@@ -81,12 +82,15 @@ class Trainer(object):
         self.confusion_matrix = meter.ConfusionMeter(self.params.categories)
 
         # set CUDA_VISIBLE_DEVICES
-        self.params.device = t.device("cuda" if t.cuda.is_available() else "cpu")
-        if t.cuda.device_count() > 1:
-            self.model = nn.DataParallel(self.model)
+        if len(self.params.gpus) > 0 and t.cuda.is_available():
+            self.params.device = t.device("cuda")
+            gpus = ','.join([str(x) for x in self.params.gpus])
+            os.environ['CUDA_VISIBLE_DEVICES'] = gpus
+            self.params.gpus = tuple(range(len(self.params.gpus)))
+            logger.info('Set CUDA_VISIBLE_DEVICES to {}...'.format(gpus))
+            self.model = nn.DataParallel(self.model, device_ids=self.params.gpus)
 
         logger.info('Train device {}'.format(self.params.device))
-        logger.info('Use {} GPUs'.format(t.cuda.device_count()))
         self.model.to(self.params.device)
 
         # release empty cache
@@ -177,6 +181,5 @@ class Trainer(object):
                            + cm_value[6][6] + cm_value[7][7]
                            + cm_value[8][8] + cm_value[9][9]
                            + cm_value[10][10] + cm_value[11][11]
-                           + cm_value[12][12] + cm_value[13][13]
-                           ) / (cm_value.sum())
+                           + cm_value[12][12]) / (cm_value.sum())
         return confusion_matrix, accuracy

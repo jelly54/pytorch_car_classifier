@@ -16,7 +16,8 @@ class TestParams(object):
     categories = 2
 
     # params based on your local env
-    device = 'cpu'
+    device = torch.device('cpu')
+    gpus = []
 
     # loading existing checkpoint
     ckpt = './models/ckpt_epoch_50.pth'  # path to the ckpt file
@@ -41,12 +42,12 @@ class Tester(object):
             logger.info('Load ckpt from {}'.format(ckpt))
 
         # set CUDA_VISIBLE_DEVICES, 1 GPU is enough
-        self.params.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if len(self.params.gpus) > 0 and torch.cuda.is_available():
+            self.params.device = torch.device("cuda")
+            gpu_test = str(self.params.gpus[0])
+            os.environ['CUDA_VISIBLE_DEVICES'] = gpu_test
+            logger.info('Set CUDA_VISIBLE_DEVICES to {}...'.format(gpu_test))
 
-        if torch.cuda.device_count() > 1:
-            self.model = torch.nn.DataParallel(self.model)
-
-        logger.info('Use {} GPUs'.format(torch.cuda.device_count()))
         self.model.to(self.params.device)
 
         # release empty cache

@@ -32,6 +32,7 @@ if __name__ == '__main__':
     params.ckpt = None  # 加载训练好的模型
     params.save_freq_epoch = 50
     params.categories = 13  # 分类数量
+    params.gpus = [0]
 
     # 图片转换
     transform = transforms.Compose([
